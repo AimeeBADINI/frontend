@@ -1,0 +1,362 @@
+/* --- Variables globales pour une palette de couleurs cohérente --- */
+:root {
+    --primary: #3498db; /* Couleur principale - bleu */
+    --primary-dark: #2980b9; /* Variante foncée du bleu */
+    --success: #28a745;  /* Teinte verte pour succès */
+    --success-light: #5cd65c; /* Variante plus claire du vert */
+    --success-dark: #218838; /* Variante plus sombre du vert */
+    --danger: #dc3545; /* Couleur de danger - rouge */
+    --danger-dark: #c82333; /* Variante plus foncée du rouge */
+    --text-dark: #2c3e50; /* Couleur de texte sombre */
+    --text-muted: #6c757d; /* Couleur de texte atténué */
+    --background-light: #f8f9fa; /* Couleur de fond clair */
+    --white: #ffffff; /* Blanc */
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    --border: #ddd; /* Couleur de bordure */
+}
+
+/* --- Reset et styles de base --- */
+.sales-report-container {
+    max-width: 1200px; /* Largeur maximale de la section */
+    margin: 0 auto; /* Centrage horizontal */
+    padding: 20px; /* Espacement interne */
+    font-family: 'Arial', sans-serif; /* Police de caractère */
+    color: var(--text-dark); /* Couleur de texte */
+}
+
+/* --- En-têtes --- */
+.report-header {
+    display: flex; /* Mise en page flex */
+    justify-content: space-between; /* Espacement entre les éléments */
+    align-items: center; /* Alignement vertical */
+    margin-bottom: 25px; /* Espacement inférieur */
+    flex-wrap: wrap; /* Emballage des éléments si nécessaire */
+    gap: 20px; /* Espacement entre les éléments */
+}
+
+h2 {
+    text-align: center; /* Centrage du titre */
+    color: var(--text-dark); /* Couleur de texte */
+    font-size: 24px; /* Taille de police */
+    margin: 0; /* Suppression des marges */
+}
+
+.daily-header {
+    display: flex; /* Mise en page flex pour l'en-tête journalier */
+    justify-content: space-between; /* Espacement entre les éléments */
+    align-items: center; /* Alignement vertical */
+    margin-bottom: 15px; /* Espacement inférieur */
+}
+
+h3 {
+    color: var(--text-dark); /* Couleur du texte */
+    font-size: 20px; /* Taille de police */
+    margin: 0; /* Suppression des marges */
+}
+
+/* --- Filtres et boutons --- */
+.filters {
+    display: flex; /* Mise en page flex */
+    gap: 15px; /* Espacement entre les filtres */
+    margin-bottom: 20px; /* Espacement inférieur */
+    flex-wrap: wrap; /* Emballage des éléments si nécessaire */
+    align-items: center; /* Alignement des éléments */
+}
+
+.date-range-selector {
+    display: flex; /* Mise en page flex pour la sélection de date */
+    align-items: center; /* Alignement vertical */
+    gap: 15px; /* Espacement entre les éléments */
+    flex-wrap: wrap; /* Emballage des éléments */
+}
+
+.date-input {
+    display: flex; /* Mise en page flex pour le champ de date */
+    align-items: center; /* Alignement vertical */
+    gap: 8px; /* Espacement entre le label et l'input */
+}
+
+.date-input label {
+    font-weight: 500; /* Poids de la police */
+    color: var(--text-dark); /* Couleur du texte */
+    font-size: 14px; /* Taille de la police */
+}
+
+.date-input input,
+.filter-input,
+.sort-select {
+    padding: 8px 12px; /* Espacement interne */
+    border: 1px solid var(--border); /* Bordure autour de l'input */
+    border-radius: 4px; /* Coins arrondis */
+    font-size: 14px; /* Taille de la police */
+    transition: border-color 0.3s; /* Transition douce pour la bordure */
+}
+
+.date-input input:focus,
+.filter-input:focus,
+.sort-select:focus {
+    border-color: var(--primary); /* Couleur de la bordure au focus */
+    outline: none; /* Suppression du contour de focus */
+}
+
+/* --- Boutons de rafraîchissement et exportation --- */
+.refresh-button,
+.export-button {
+    padding: 8px 16px; /* Espacement interne */
+    border: none; /* Suppression de la bordure */
+    border-radius: 4px; /* Coins arrondis */
+    font-size: 14px; /* Taille de la police */
+    cursor: pointer; /* Curseur pointer au survol */
+    transition: background-color 0.3s; /* Transition douce pour le fond */
+}
+
+.refresh-button {
+    background-color: var(--success-light);  /* Vert clair */
+    color: var(--white); /* Texte blanc */
+}
+
+.refresh-button:hover {
+    background-color: var(--success-dark); /* Changement de couleur au survol */
+}
+
+.export-button {
+    background-color: var(--primary); /* Bleu principal */
+    color: var(--white); /* Texte blanc */
+}
+
+.export-button:hover {
+    background-color: var(--primary-dark); /* Changement de couleur au survol */
+}
+
+/* --- Chargement (spinner) --- */
+.loading-container {
+    display: flex; /* Mise en page flex */
+    flex-direction: column; /* Alignement en colonne */
+    align-items: center; /* Alignement horizontal */
+    justify-content: center; /* Alignement vertical */
+    height: 200px; /* Hauteur fixe */
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1); /* Bordure légère autour du spinner */
+    width: 36px; /* Largeur du spinner */
+    height: 36px; /* Hauteur du spinner */
+    border-radius: 50%; /* Forme circulaire */
+    border-left-color: var(--primary); /* Couleur de la bordure gauche */
+    animation: spin 1s linear infinite; /* Animation de rotation */
+    margin-bottom: 15px; /* Espacement inférieur */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); } /* Début de l'animation */
+    100% { transform: rotate(360deg); } /* Fin de l'animation */
+}
+
+/* --- Erreur --- */
+.error-container {
+    text-align: center; /* Centrer le texte */
+    padding: 20px; /* Espacement interne */
+    background-color: #f8d7da; /* Fond d'erreur */
+    border-radius: 5px; /* Coins arrondis */
+    color: #721c24; /* Couleur du texte d'erreur */
+    margin: 20px; /* Espacement extérieur */
+}
+
+.error-message {
+    margin-bottom: 15px; /* Espacement inférieur */
+    font-size: 16px; /* Taille de la police */
+}
+
+.retry-button {
+    padding: 8px 16px; /* Espacement interne */
+    background-color: var(--danger); /* Couleur rouge de danger */
+    color: var(--white); /* Texte blanc */
+    border: none; /* Suppression de la bordure */
+    border-radius: 4px; /* Coins arrondis */
+    cursor: pointer; /* Curseur pointer au survol */
+    transition: background-color 0.3s; /* Transition douce pour le fond */
+}
+
+.retry-button:hover {
+    background-color: var(--danger-dark); /* Changement de couleur au survol */
+}
+
+/* --- Tableaux de ventes --- */
+.sales-report {
+    display: flex; /* Mise en page flex */
+    flex-direction: column; /* Alignement en colonne */
+    gap: 20px; /* Espacement entre les rapports */
+}
+
+.daily-report {
+    background: var(--background-light); /* Fond clair */
+    padding: 15px; /* Espacement interne */
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: var(--shadow); /* Ombre autour du rapport */
+}
+
+.sales-table {
+    width: 100%; /* Largeur complète */
+    border-collapse: collapse; /* Fusionner les bordures */
+    margin-bottom: 10px; /* Espacement inférieur */
+}
+
+.sales-table th,
+.sales-table td {
+    padding: 12px; /* Espacement interne */
+    text-align: left; /* Alignement du texte à gauche */
+    border-bottom: 1px solid var(--border); /* Bordure inférieure */
+}
+
+.sales-table th {
+    background: var(--primary); /* Fond bleu pour les en-têtes */
+    color: var(--white); /* Texte blanc */
+    font-weight: 600; /* Poids de la police */
+}
+
+.details-button {
+    padding: 6px 12px; /* Espacement interne */
+    background: var(--primary); /* Fond bleu */
+    color: var(--white); /* Texte blanc */
+    border: none; /* Suppression de la bordure */
+    border-radius: 4px; /* Coins arrondis */
+    cursor: pointer; /* Curseur pointer au survol */
+    transition: background 0.3s; /* Transition douce pour le fond */
+}
+
+.details-button:hover {
+    background: var(--primary-dark); /* Changement de couleur au survol */
+}
+
+.details-container {
+    padding: 15px; /* Espacement interne */
+    background-color: var(--background-light); /* Fond clair */
+    border-radius: 8px; /* Coins arrondis */
+    margin: 10px 0; /* Espacement autour */
+}
+
+.details-container h4 {
+    margin: 0 0 15px 0; /* Espacement autour du titre */
+    color: var(--text-dark); /* Couleur du texte */
+    font-size: 16px; /* Taille de la police */
+}
+
+.details-table {
+    width: 100%; /* Largeur complète */
+    border-collapse: collapse; /* Fusionner les bordures */
+    margin: 10px 0; /* Espacement autour */
+}
+
+.details-table th,
+.details-table td {
+    padding: 10px; /* Espacement interne */
+    border: 1px solid var(--border); /* Bordure des cellules */
+}
+
+.details-table th {
+    background: #e9ecef; /* Fond clair pour les en-têtes de détails */
+    color: var(--text-dark); /* Couleur du texte */
+}
+
+.total-row {
+    font-weight: bold; /* Texte en gras */
+    background: #e9ecef; /* Fond clair */
+}
+
+.daily-total {
+    background-color: #e9ecef; /* Fond clair */
+    padding: 6px 12px; /* Espacement interne */
+    border-radius: 20px; /* Coins arrondis */
+    font-weight: 500; /* Poids de la police */
+    color: var(--text-dark); /* Couleur du texte */
+}
+
+/* --- Total global --- */
+.grand-total {
+    margin-bottom: 25px; /* Espacement inférieur */
+}
+
+.total-card {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); /* Dégradé de couleurs */
+    color: var(--white); /* Texte blanc */
+    padding: 15px 20px; /* Espacement interne */
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: var(--shadow); /* Ombre douce */
+}
+
+.total-card h4 {
+    margin: 0 0 10px 0; /* Espacement autour du titre */
+    font-size: 18px; /* Taille de la police */
+}
+
+.total-values {
+    display: flex; /* Mise en page flex */
+    justify-content: space-between; /* Espacement entre les valeurs */
+    font-size: 16px; /* Taille de la police */
+}
+
+/* --- Aucun résultat --- */
+.no-data {
+    text-align: center; /* Centrer le texte */
+    padding: 40px; /* Espacement interne */
+    background-color: var(--background-light); /* Fond clair */
+    border-radius: 8px; /* Coins arrondis */
+    color: var(--text-muted); /* Couleur de texte atténuée */
+    font-size: 16px; /* Taille de la police */
+}
+
+/* --- Accessibilité : Contraste élevé --- */
+@media (prefers-contrast: high) {
+    .sales-table th,
+    .details-button,
+    .export-button {
+        background: #003087; /* Bleu foncé pour les éléments importants */
+    }
+    .details-button:hover,
+    .export-button:hover {
+        background: #001f5b; /* Changement au survol */
+    }
+    .refresh-button {
+        background: #1a5f2a; /* Vert foncé pour le bouton de rafraîchissement */
+    }
+    .refresh-button:hover {
+        background: #134d21; /* Changement de couleur au survol */
+    }
+    .retry-button {
+        background: #a71d2a; /* Rouge pour le bouton de retry */
+    }
+    .retry-button:hover {
+        background: #8b1a24; /* Changement de couleur au survol */
+    }
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .report-header,
+    .filters,
+    .date-range-selector {
+        flex-direction: column; /* Empilement des éléments en colonne */
+        align-items: flex-start; /* Alignement à gauche */
+    }
+    .sales-table th,
+    .sales-table td {
+        font-size: 14px; /* Taille de la police plus petite */
+        padding: 8px; /* Espacement réduit */
+    }
+    .details-table th,
+    .details-table td {
+        font-size: 12px; /* Taille de la police plus petite */
+        padding: 6px; /* Espacement réduit */
+    }
+}
+
+@media (max-width: 600px) {
+    .total-values {
+        flex-direction: column; /* Empilement vertical des valeurs */
+        gap: 10px; /* Espacement entre les valeurs */
+    }
+    .sales-table {
+        display: block; /* Affichage en bloc */
+        overflow-x: auto; /* Défilement horizontal */
+    }
+}

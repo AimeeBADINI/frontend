@@ -1,0 +1,85 @@
+/* Login.css */
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f4f8;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .error-message {
+    color: red;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    width: 90%;
+    max-width: 400px;
+  }
+  
+  .loading-spinner {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
+    margin-top: 20px;
+  }
+  
+  .google-login-button {
+    width: 90%;
+    max-width: 400px;
+    margin-top: 20px;
+  }
+  
+  .google-login-button .google-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background-color: #4285f4;
+    color: white;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    width: 100%;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .google-login-button .google-button:hover {
+    background-color: #357ae8;
+    transform: translateY(-3px);
+  }
+  
+  .google-login-button .google-button:active {
+    background-color: #3063d0;
+    transform: translateY(1px);
+  }
+  
+  /* Responsive pour petits écrans */
+  @media (max-width: 480px) {
+    h2 {
+      font-size: 1.5rem;
+    }
+  
+    .loading-spinner {
+      font-size: 1rem;
+    }
+  
+    .google-login-button .google-button {
+      font-size: 1rem;
+      padding: 10px;
+    }
+  }
+  

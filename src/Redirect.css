@@ -1,0 +1,231 @@
+/* Redirect container styling */
+.redirect-container {
+    max-width: 1200px; /* Match provided Redirect.css */
+    margin: 0 auto;
+    padding: 20px; /* Match Home.css padding */
+    padding-top: 100px; /* Increased to push content, including welcome message, lower */
+    font-family: Arial, sans-serif; /* Match Home.css */
+    background-color: #f5f5f5; /* Match Home.css background */
+    min-height: calc(100vh - 100px); /* Adjusted for increased padding-top */
+}
+
+/* Heading styling */
+.redirect-container h2 {
+    text-align: center;
+    color: #6b4f4f; /* Match provided Redirect.css */
+    font-size: 1.5rem; /* Match Home.css h2 */
+    font-weight: 600;
+    margin: 0 0 20px;
+}
+
+.redirect-container h3 {
+    color: #8c5e58; /* Match provided Redirect.css */
+    font-size: 1.25rem; /* Match Home.css h3 */
+    margin: 20px 0 15px;
+}
+
+.redirect-container h4 {
+    color: #3d2b2b; /* Match provided Redirect.css */
+    font-size: 1rem; /* Match provided Redirect.css */
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+/* Button styling */
+.add-button, .historique-button, .edit-button, .delete-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 4px; /* Match Home.css */
+    font-size: 16px; /* Match Home.css buttons */
+    text-decoration: none;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s; /* Match Home.css */
+    margin: 10px 10px 20px 0; /* Match provided Redirect.css */
+}
+
+.add-button, .historique-button {
+    background-color: #e6a57e; /* Match provided Redirect.css */
+}
+
+.add-button:hover, .historique-button:hover {
+    background-color: #d98c66; /* Match provided Redirect.css */
+}
+
+.edit-button {
+    background-color: #7fa87f; /* Match provided Redirect.css */
+}
+
+.edit-button:hover {
+    background-color: #679e67; /* Match provided Redirect.css */
+}
+
+.delete-button {
+    background-color: #e55d5d; /* Match provided Redirect.css */
+}
+
+.delete-button:hover {
+    background-color: #cc4949; /* Match provided Redirect.css */
+}
+
+/* Category filter styling */
+.redirect-container label {
+    font-size: 16px;
+    color: #333; /* Match Home.css text color */
+    margin-right: 10px; /* Match provided Redirect.css */
+    font-weight: 600;
+}
+
+.redirect-container select {
+    padding: 8px; /* Match Home.css */
+    margin-bottom: 15px;
+    border: 1px solid #ddd; /* Match Home.css */
+    border-radius: 4px; /* Match Home.css */
+    font-size: 16px; /* Match Home.css */
+    background-color: #f9f9f9; /* Match Home.css */
+    transition: border-color 0.2s; /* Match Home.css */
+}
+
+.redirect-container select:focus {
+    outline: none;
+    border-color: #1976d2; /* Match Home.css */
+}
+
+/* Category section styling */
+.category-section {
+    background-color: #fff; /* Match Home.css card background */
+    padding: 20px; /* Match Home.css */
+    border-radius: 4px; /* Match Home.css */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Match Home.css shadow */
+    margin-bottom: 20px;
+}
+
+/* Product list styling */
+.product-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Match provided Redirect.css */
+    gap: 20px; /* Match provided Redirect.css */
+}
+
+/* Product item styling */
+.product-item {
+    background-color: #fceeea; /* Match provided Redirect.css */
+    border: 1px solid #e6d3ce; /* Match provided Redirect.css */
+    border-radius: 10px; /* Match provided Redirect.css */
+    padding: 15px; /* Match provided Redirect.css */
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Match Home.css shadow */
+    transition: transform 0.2s, box-shadow 0.2s; /* Match Home.css */
+}
+
+.product-item:hover {
+    transform: translateY(-5px); /* Match Home.css */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Match Home.css */
+}
+
+.product-item h4 {
+    margin: 0 0 10px;
+    font-size: 16px; /* Match Home.css product-card h4 */
+    color: #3d2b2b; /* Match provided Redirect.css */
+}
+
+.product-item p {
+    margin: 5px 0; /* Match provided Redirect.css */
+    font-size: 14px; /* Match Home.css */
+    color: #666; /* Match Home.css secondary text */
+}
+
+/* Product image styling */
+.product-image {
+    max-width: 100%;
+    height: 150px; /* Match provided Redirect.css */
+    object-fit: cover;
+    border-radius: 8px; /* Match provided Redirect.css */
+    margin: 10px 0; /* Match provided Redirect.css */
+}
+
+/* Product buttons container */
+.product-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Match Home.css button gap */
+    margin-top: 10px; /* Match provided Redirect.css */
+}
+
+/* Loading and error styling */
+.loading, .error {
+    font-size: 16px; /* Match Home.css */
+    color: #a94442; /* Match provided Redirect.css */
+    text-align: center;
+    padding: 20px; /* Match Home.css */
+}
+
+.error {
+    background: #fef2f2; /* Match Home.css error background */
+    border-radius: 4px; /* Match Home.css */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .redirect-container {
+        padding: 15px; /* Match Home.css mobile padding */
+        padding-top: 0; /* Header is relative on mobile */
+    }
+
+    .redirect-container h2 {
+        font-size: 1.25rem; /* Match Home.css mobile h2 */
+    }
+
+    .redirect-container h3 {
+        font-size: 1.125rem;
+    }
+
+    .redirect-container select {
+        font-size: 14px; /* Match Home.css */
+    }
+
+    .product-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust for smaller screens */
+    }
+
+    .add-button, .historique-button, .edit-button, .delete-button {
+        font-size: 14px; /* Match Home.css */
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .redirect-container {
+        padding: 10px; /* Match Home.css mobile padding */
+    }
+
+    .category-section {
+        padding: 15px; /* Match Home.css */
+    }
+
+    .product-list {
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+
+    .product-item h4 {
+        font-size: 14px; /* Match Home.css */
+    }
+
+    .product-item p {
+        font-size: 12px; /* Match Home.css */
+    }
+
+    .product-image {
+        height: 120px; /* Match Home.css mobile */
+    }
+
+    .add-button, .historique-button, .edit-button, .delete-button {
+        font-size: 12px; /* Match Home.css */
+        padding: 6px 12px;
+    }
+}
+
+
