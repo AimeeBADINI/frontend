@@ -3,7 +3,7 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import Header from './Header';
 import Footer from './Footer';
-import './styles.css';
+import './Home.css';
 
 const Home = () => {
     const [products, setProducts] = useState([]);
@@ -147,27 +147,24 @@ const Home = () => {
         const doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
-            format: [80, 150 + cartItems.length * 10] // Hauteur ajustée pour plus d'espace
+            format: [80, 150 + cartItems.length * 10]
         });
 
-        const tvaRate = 0.20; // 20% TVA
+        const tvaRate = 0.20;
         const totalHT = calculateTotal(cartItems) / (1 + tvaRate);
         const tvaAmount = calculateTotal(cartItems) - totalHT;
 
-        // En-tête
         doc.setFontSize(10);
         doc.text('Pâtisserie Délices', 40, 10, { align: 'center' });
         doc.setFontSize(7);
         doc.text('123 Rue des Gâteaux, Paris', 40, 15, { align: 'center' });
         doc.text('Tél : +33 1 23 45 67 89', 40, 20, { align: 'center' });
 
-        // Informations du ticket
         doc.setFontSize(8);
         doc.text(`Ticket n° ${saleId}`, 5, 30);
         doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 5, 35);
         doc.text(`Heure: ${new Date().toLocaleTimeString('fr-FR')}`, 5, 40);
 
-        // Tableau des produits
         doc.setFontSize(7);
         let y = 50;
         doc.line(5, y - 5, 75, y - 5);
@@ -189,7 +186,6 @@ const Home = () => {
             y += 7;
         });
 
-        // Résumé financier
         y += 5;
         doc.line(5, y - 5, 75, y - 5);
         doc.setFontSize(7);
@@ -200,12 +196,10 @@ const Home = () => {
         doc.setFontSize(8);
         doc.text(`Total TTC: ${calculateTotal(cartItems)} €`, 50, y);
 
-        // Pied de page
         y += 10;
         doc.setFontSize(7);
         doc.text('Merci de votre visite !', 40, y, { align: 'center' });
 
-        // Impression automatique
         doc.autoPrint();
         const pdfBlob = doc.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -228,7 +222,7 @@ const Home = () => {
                     document.body.removeChild(iframe);
                     URL.revokeObjectURL(pdfUrl);
                 }, 1000);
-            }, 100); // Délai pour charger l'iframe
+            }, 100);
         };
     };
 
@@ -257,33 +251,40 @@ const Home = () => {
     };
 
     return (
-        <div className="home-container">
-            
-            <main className="container flex-container">
+        <div className="pos-container">
+            <Header />
+
+            <main className="pos-main">
+                {/* Section produits (gauche) */}
                 <div className="products-section">
-                    <h2>Produits</h2>
-                    <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
+                    <div className="category-filter">
+                        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Rechercher un produit"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
+                    </div>
 
                     {categoriesToShow.map(category => (
-                        <div key={category}>
+                        <div key={category} className="category-section">
                             <h3>{category}</h3>
-                            <input
-                                type="text"
-                                placeholder="Rechercher un produit"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                            />
                             <div className="product-grid">
                                 {filteredProducts(groupedProducts[category] || []).map(product => (
                                     <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
                                         <img
                                             src={product.image_url ? `http://localhost:5000${product.image_url}` : 'https://via.placeholder.com/150'}
                                             alt={product.nom}
+                                            className="product-image"
                                         />
-                                        <h4>{product.nom}</h4>
-                                        <p>{product.prix_unitaire.toFixed(2)} €</p>
+                                        <div className="product-info">
+                                            <h4>{product.nom}</h4>
+                                            <p>{product.prix_unitaire.toFixed(2)} €</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -291,14 +292,35 @@ const Home = () => {
                     ))}
                 </div>
 
+                {/* Section caisse (droite) */}
                 <div className="cart-section">
-                    <h2>Panier</h2>
-                    {errorMessage && <p className="error-message">{errorMessage}</p>}
-                    {cart.length === 0 ? <p>Panier vide</p> : (
-                        <>
+                    <div className="cart-actions-top">
+                        <button onClick={clearCart} className="action-btn nuevo-ticket">
+                            <span role="img" aria-label="new-ticket">🔄</span> NUEVO TICKET
+                        </button>
+                        <button onClick={printLastInvoice} className="action-btn print-btn">
+                            <span role="img" aria-label="print">🖨️</span> IMPRIMER
+                        </button>
+                        <button className="action-btn">
+                            <span role="img" aria-label="pfpe">🔍</span> PF/PE
+                        </button>
+                        <button className="action-btn">
+                            <span role="img" aria-label="taniva">🔍</span> TANIVA
+                        </button>
+                    </div>
+
+                    <div className="cart-ticket">
+                        {cart.length === 0 ? (
+                            <p>Panier vide</p>
+                        ) : (
                             <table>
                                 <thead>
-                                    <tr><th>Produit</th><th>Qté</th><th>Prix</th><th>Total</th><th>Action</th></tr>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Qté</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {cart.map(item => (
@@ -310,46 +332,64 @@ const Home = () => {
                                                     min="1"
                                                     value={item.quantity}
                                                     onChange={e => updateQuantity(item.productId, e.target.value)}
+                                                    className="quantity-input"
                                                 />
                                             </td>
-                                            <td>{item.prix_unitaire.toFixed(2)}</td>
-                                            <td>{(item.quantity * item.prix_unitaire).toFixed(2)}</td>
+                                            <td>{(item.quantity * item.prix_unitaire).toFixed(2)} €</td>
                                             <td>
-                                                <button onClick={() => removeFromCart(item.productId)}>Supprimer</button>
+                                                <button onClick={() => removeFromCart(item.productId)} className="remove-btn">X</button>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                            <p><strong>Total: {calculateTotal()} €</strong></p>
+                        )}
+                        <div className="cart-total">
+                            <strong>Total: {calculateTotal()} €</strong>
+                        </div>
+                    </div>
 
-                            <div className="payment-section">
-                                <input
-                                    type="number"
-                                    placeholder="Montant donné (€)"
-                                    value={amountGiven}
-                                    onChange={e => setAmountGiven(e.target.value)}
-                                    min="0"
-                                    step="0.01"
-                                    disabled={isProcessing}
-                                />
-                                <button onClick={handleCalculateChange} disabled={isProcessing}>Calculer la monnaie</button>
-                                {change !== null && <p>Monnaie à rendre: <strong>{change} €</strong></p>}
-                            </div>
+                    <div className="payment-section">
+                        <input
+                            type="number"
+                            placeholder="Montant donné (€)"
+                            value={amountGiven}
+                            onChange={e => setAmountGiven(e.target.value)}
+                            min="0"
+                            step="0.01"
+                            disabled={isProcessing}
+                            className="amount-input"
+                        />
+                        <button onClick={handleCalculateChange} className="action-btn calculate-btn">Calculer</button>
+                        {change !== null && <p>Monnaie: <strong>{change} €</strong></p>}
+                    </div>
 
-                            <div className="cart-actions">
-                                <button onClick={confirmSale} disabled={isProcessing}>
-                                    {isProcessing ? 'Traitement...' : 'Valider la vente'}
-                                </button>
-                                {lastSaleId && (
-                                    <button onClick={printLastInvoice} className="print-invoice" disabled={isProcessing}>
-                                        Imprimer la facture
-                                    </button>
-                                )}
-                                <button onClick={clearCart} className="clear-cart" disabled={isProcessing}>Vider le panier</button>
-                            </div>
-                        </>
-                    )}
+                    <div className="numeric-keypad">
+                        <div className="keypad-row">
+                            <button onClick={() => setAmountGiven(amountGiven + '7')}>7</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '8')}>8</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '9')}>9</button>
+                            <button onClick={() => setAmountGiven('')} className="keypad-special">CE</button>
+                        </div>
+                        <div className="keypad-row">
+                            <button onClick={() => setAmountGiven(amountGiven + '4')}>4</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '5')}>5</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '6')}>6</button>
+                            <button onClick={() => setAmountGiven(amountGiven.slice(0, -1))} className="keypad-special">⌫</button>
+                        </div>
+                        <div className="keypad-row">
+                            <button onClick={() => setAmountGiven(amountGiven + '1')}>1</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '2')}>2</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '3')}>3</button>
+                            <button onClick={confirmSale} className="keypad-special confirm-btn">✔</button>
+                        </div>
+                        <div className="keypad-row">
+                            <button onClick={() => setAmountGiven(amountGiven + '0')}>0</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '00')}>00</button>
+                            <button onClick={() => setAmountGiven(amountGiven + '.')}>.</button>
+                            <button className="keypad-special">X</button>
+                        </div>
+                    </div>
                 </div>
             </main>
             <Footer />

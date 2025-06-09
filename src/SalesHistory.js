@@ -1,282 +1,192 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Importation de useNavigate
 import './SalesHistory.css';
 
 const SalesHistory = () => {
-    const navigate = useNavigate(); // Initialisation de useNavigate
-    const [salesData, setSalesData] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [expandedCategories, setExpandedCategories] = useState({});
-    const [dateRange, setDateRange] = useState({
-        start: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
-        end: new Date().toISOString().split('T')[0]
-    });
-    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+  const [history, setHistory] = useState([]);
+  const [filteredHistory, setFilteredHistory] = useState([]);
+  const [selectedDetails, setSelectedDetails] = useState({});
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
-    const fetchSalesData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get('http://localhost:5000/api/ventes/par-jour-categorie', {
-                params: {
-                    start: dateRange.start,
-                    end: dateRange.end
-                }
-            });
-            console.log('Données reçues :', response.data); // Débogage
-            setSalesData(response.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Erreur lors de la récupération des données de vente:', err);
-            setError('Impossible de charger les données de vente');
-            setLoading(false);
-        }
-    }, [dateRange]);
+  const [filterYear, setFilterYear] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
 
-    useEffect(() => {
-        fetchSalesData();
-    }, [fetchSalesData]);
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/sales/history')
+      .then(res => {
+        setHistory(res.data);
+        setFilteredHistory(res.data);
+      })
+      .catch(err => console.error('Erreur chargement historique:', err));
+  }, []);
 
-    const toggleDetails = (date, categorie) => {
-        setExpandedCategories(prev => ({
-            ...prev,
-            [`${date}-${categorie}`]: !prev[`${date}-${categorie}`]
-        }));
-    };
+  useEffect(() => {
+    let filtered = history;
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-    };
+    if (filterYear) {
+      filtered = filtered.filter(h => h.annee.toString() === filterYear);
+    }
 
-    const handleDateChange = (e) => {
-        const { name, value } = e.target;
-        setDateRange(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+    if (filterCategory) {
+      filtered = filtered.map(yearData => ({
+        ...yearData,
+        mois: yearData.mois.map(monthData => ({
+          ...monthData,
+          jours: monthData.jours.map(dayData => ({
+            ...dayData,
+            categories: dayData.categories.filter(cat => cat.categorie === filterCategory)
+          })).filter(dayData => dayData.categories.length > 0)
+        })).filter(monthData => monthData.jours.length > 0)
+      })).filter(yearData => yearData.mois.length > 0);
+    }
 
-    const requestSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
-    };
+    setFilteredHistory(filtered);
+  }, [filterYear, filterCategory, history]);
 
-    const sortedSalesData = useCallback(() => {
-        const sortableItems = Object.entries(salesData);
-        if (sortConfig.key === 'date') {
-            sortableItems.sort((a, b) => {
-                const dateA = new Date(a[0]);
-                const dateB = new Date(b[0]);
-                if (sortConfig.direction === 'asc') {
-                    return dateA - dateB;
-                } else {
-                    return dateB - dateA;
-                }
-            });
-        }
-        return Object.fromEntries(sortableItems);
-    }, [salesData, sortConfig]);
+  const handleCategoryClick = async (categorie, annee, mois, jour) => {
+    const formattedDate = `${annee}-${String(mois).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+    const key = `${formattedDate}-${categorie}`;
 
-    const calculateGrandTotal = () => {
-        let totalQuantity = 0;
-        let totalAmount = 0;
-        
-        Object.values(salesData).forEach(categories => {
-            categories.forEach(category => {
-                totalQuantity += Number(category.total_quantite);
-                totalAmount += Number(category.total_montant);
-            });
-        });
-        
-        return { totalQuantity, totalAmount };
-    };
+    if (selectedDetails[key]) {
+      setSelectedDetails(prev => {
+        const newDetails = { ...prev };
+        delete newDetails[key];
+        return newDetails;
+      });
+      return;
+    }
 
-    const grandTotal = calculateGrandTotal();
+    try {
+      setLoadingDetails(true);
+      const res = await axios.get('http://localhost:5000/api/sales/category-details-simple', {
+        params: { categorie, jour: formattedDate }
+      });
+      setSelectedDetails(prev => ({
+        ...prev,
+        [key]: res.data
+      }));
+    } catch (err) {
+      console.error('Erreur chargement détails:', err);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
 
-    if (loading) return (
-        <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Chargement des données de vente...</p>
-        </div>
-    );
+  const formatPrice = (value) => {
+    const num = Number(value);
+    return isNaN(num) ? '0.00 DH' : num.toFixed(2) + ' DH';
+  };
 
-    if (error) return (
-        <div className="error-container">
-            <p className="error-message">{error}</p>
-            <button onClick={fetchSalesData} className="retry-button">
-                Réessayer
-            </button>
-        </div>
-    );
+  const availableYears = Array.from(new Set(history.map(h => h.annee.toString())));
+  const availableCategories = Array.from(new Set(
+    history.flatMap(h =>
+      h.mois.flatMap(m =>
+        m.jours.flatMap(j =>
+          j.categories.map(c => c.categorie)
+        )
+      )
+    )
+  ));
 
-    return (
-        <div className="sales-report-container">
-            <div className="report-header">
-                <h2>Rapport des ventes par jour et catégorie</h2>
-                <div className="date-range-selector">
-                    <div className="date-input">
-                        <label htmlFor="start">Du :</label>
-                        <input
-                            type="date"
-                            id="start"
-                            name="start"
-                            value={dateRange.start}
-                            onChange={handleDateChange}
-                            max={dateRange.end}
-                        />
-                    </div>
-                    <div className="date-input">
-                        <label htmlFor="end">Au :</label>
-                        <input
-                            type="date"
-                            id="end"
-                            name="end"
-                            value={dateRange.end}
-                            onChange={handleDateChange}
-                            min={dateRange.start}
-                            max={new Date().toISOString().split('T')[0]}
-                        />
-                    </div>
-                    <button onClick={fetchSalesData} className="refresh-button">
-                        Actualiser
-                    </button>
-                </div>
+  return (
+    <div className="sales-history-container">
+      <h1 className="sales-history-title">Historique des ventes</h1>
+
+      <div className="sales-history-filters">
+        <select
+          className="sales-history-filter-btn"
+          value={filterYear}
+          onChange={e => setFilterYear(e.target.value)}
+          aria-label="Filtrer par année"
+        >
+          <option value=''>Toutes les années</option>
+          {availableYears.map(annee => (
+            <option key={annee} value={annee}>{annee}</option>
+          ))}
+        </select>
+
+        <select
+          className="sales-history-filter-btn"
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          aria-label="Filtrer par catégorie"
+        >
+          <option value=''>Toutes les catégories</option>
+          {availableCategories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+
+      {filteredHistory.length === 0 && (
+        <p className="sales-history-message">Aucune donnée disponible pour ce filtre.</p>
+      )}
+
+      {filteredHistory.map(({ annee, mois }) => (
+        <div key={annee} className="date-group">
+          <h2>Année {annee}</h2>
+
+          {mois.map(({ mois, jours }) => (
+            <div key={mois} className="month-section">
+              <h3>Mois {String(mois).padStart(2, '0')}</h3>
+
+              <table className="sales-history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Total Qté</th>
+                    <th>Total</th>
+                    <th>Catégories</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jours.map(({ jour, categories, total_journalier, total_prix_journalier }) => (
+                    <tr key={jour}>
+                      <td>{String(jour).padStart(2, '0')}/{String(mois).padStart(2, '0')}/{annee}</td>
+                      <td>{total_journalier}</td>
+                      <td>{formatPrice(total_prix_journalier)}</td>
+                      <td>
+                        <ul style={{listStyleType: 'none', paddingLeft: 0, margin: 0}}>
+                          {categories.map(({ categorie, quantite_totale, total_prix_par_categorie }) => {
+                            const formattedDate = `${annee}-${String(mois).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+                            const detailKey = `${formattedDate}-${categorie}`;
+                            return (
+                              <li
+                                key={detailKey}
+                                className="category-item"
+                                style={{cursor: 'pointer', color: '#33691e', marginBottom: '6px'}}
+                                onClick={() => handleCategoryClick(categorie, annee, mois, jour)}
+                                title="Cliquez pour afficher les détails"
+                              >
+                                📦 <strong>{categorie}</strong> — Qté : {quantite_totale} — {formatPrice(total_prix_par_categorie)}
+
+                                {selectedDetails[detailKey] && (
+                                  <ul className="details" style={{marginTop: '5px', paddingLeft: '15px'}}>
+                                    <li><em>Détails de la catégorie :</em></li>
+                                    {selectedDetails[detailKey].map(prod => (
+                                      <li key={prod.id}>
+                                        {prod.nom} — Qté : {prod.quantite_totale} — Prix unitaire : {formatPrice(prod.prix_unitaire)} — Total : {formatPrice(prod.total_prix)}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            {/* Bouton de retour vers Redirect */}
-            <div className="back-button-container">
-                <button onClick={() => navigate('/redirect')} className="back-button">
-                    Retour
-                </button>
-            </div>
-
-            {Object.keys(salesData).length === 0 ? (
-                <div className="no-data">
-                    <p>Aucune vente enregistrée pour cette période</p>
-                </div>
-            ) : (
-                <>
-                    <div className="grand-total">
-                        <div className="total-card">
-                            <h4>Total général</h4>
-                            <div className="total-values">
-                                <span>Quantité: <strong>{grandTotal.totalQuantity}</strong></span>
-                                <span>Montant: <strong>{grandTotal.totalAmount.toFixed(2)} €</strong></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="sales-report">
-                        {Object.entries(sortedSalesData()).map(([date, categories]) => (
-                            <div key={date} className="daily-report">
-                                <div className="daily-header">
-                                    <h3>{formatDate(date)}</h3>
-                                    <span className="daily-total">
-                                        Total journalier: {categories
-                                            .reduce((sum, cat) => sum + Number(cat.total_montant), 0)
-                                            .toFixed(2)} €
-                                    </span>
-                                </div>
-                                <table className="sales-table">
-                                    <thead>
-                                        <tr>
-                                            <th onClick={() => requestSort('categorie')}>
-                                                Catégorie {sortConfig.key === 'categorie' && (
-                                                    sortConfig.direction === 'asc' ? '↑' : '↓'
-                                                )}
-                                            </th>
-                                            <th>Quantité vendue</th>
-                                            <th>Montant total (€)</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {categories.map((category, index) => (
-                                            <React.Fragment key={index}>
-                                                <tr>
-                                                    <td>{category.categorie}</td>
-                                                    <td>{category.total_quantite}</td>
-                                                    <td>{Number(category.total_montant).toFixed(2)}</td>
-                                                    <td>
-                                                        <button
-                                                            onClick={() => toggleDetails(date, category.categorie)}
-                                                            className="details-button"
-                                                            disabled={!category.details || category.details.length === 0}
-                                                        >
-                                                            {expandedCategories[`${date}-${category.categorie}`] 
-                                                                ? 'Masquer' : 'Détails'}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                {expandedCategories[`${date}-${category.categorie}`] && category.details && (
-                                                    <tr className="details-row">
-                                                        <td colSpan="4">
-                                                            <div className="details-container">
-                                                                <h4>Détails des ventes - {category.categorie}</h4>
-                                                                {category.details.length > 0 ? (
-                                                                    <table className="details-table">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Produit</th>
-                                                                                <th>Quantité</th>
-                                                                                <th>Prix unitaire</th>
-                                                                                <th>Total</th>
-                                                                                <th>Heure</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {category.details.map((detail, idx) => (
-                                                                                <tr key={idx}>
-                                                                                    <td>{detail.produit_nom}</td>
-                                                                                    <td>{detail.quantite}</td>
-                                                                                    <td>{parseFloat(detail.prix_unitaire).toFixed(2)} €</td>
-                                                                                    <td>{(detail.quantite * detail.prix_unitaire).toFixed(2)} €</td>
-                                                                                    <td>
-                                                                                        {new Date(detail.created_at).toLocaleTimeString('fr-FR', {
-                                                                                            hour: '2-digit',
-                                                                                            minute: '2-digit'
-                                                                                        })}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                ) : (
-                                                                    <p>Aucun détail disponible pour cette catégorie.</p>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </React.Fragment>
-                                        ))}
-                                        <tr className="total-row">
-                                            <td>Total journalier</td>
-                                            <td>{categories.reduce((sum, cat) => sum + Number(cat.total_quantite), 0)}</td>
-                                            <td>
-                                                {categories
-                                                    .reduce((sum, cat) => sum + Number(cat.total_montant), 0)
-                                                    .toFixed(2)} €
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
+          ))}
         </div>
-    );
+      ))}
+
+      {loadingDetails && <p className="sales-history-message">Chargement des détails...</p>}
+    </div>
+  );
 };
 
 export default SalesHistory;

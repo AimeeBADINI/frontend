@@ -1,35 +1,14 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './styles.css';
+import React from 'react';
+import './Header.css';
+
 const Header = () => {
-  const [open, setOpen] = useState(false);
-
-  const toggleMenu = () => setOpen(!open);
-
-  const closeMenu = () => setOpen(false);
-
-  return (
-    <header className="header">
-      <div className="logo">
-        <img src="/logo.png" alt="La MERIENDA" className="logo-image" />
-      </div>
-      <nav>
-        <ul className="nav-menu">
-          <li className="dropdown">
-            <button onClick={toggleMenu} className="dropbtn">
-              Menu
-            </button>
-            {open && (
-              <ul className="dropdown-content" onClick={closeMenu}>
-                <li><Link to="/">Caisse</Link></li>
-                <li><Link to="/login">Login</Link></li>
-              </ul>
-            )}
-          </li>
-        </ul>
-      </nav>
-    </header>
-  );
+    return (
+        <header className="header">
+            <div className="logo">
+                <h1>Pâtisserie Délices</h1>
+            </div>
+        </header>
+    );
 };
 
-export default Header;
+export default Header
