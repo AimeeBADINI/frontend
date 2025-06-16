@@ -1,20 +1,21 @@
 
 /* Variables globales */
 :root {
-  --primary: #f8b7b7; /* Rose pâle pour une touche douce */
-  --primary-light: #fffaf0; /* Crème clair pour le fond */
-  --primary-dark: #96d6e6; /* Rose plus foncé pour hover */
-  --secondary: #d4a373; /* Doré pour les accents */
-  --border: #e8d8c9; /* Bordure douce couleur sable */
-  --text: #4a2c2a; /* Marron chocolat pour le texte */
-  --text-light: #8b6f47; /* Marron clair pour texte secondaire */
-  --background: #fdf5e6; /* Fond crème pour ambiance chaleureuse */
-  --radius: 12px; /* Coins plus arrondis pour douceur */
-  --gap: 16px; /* Espacement généreux */
-  --section-gap: 20px; /* Espacement entre sections */
-  --shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Ombre douce */
-  --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.15); /* Ombre au survol */
+  --primary: #a8d5ba;        /* Vert clair doux */
+  --primary-light: #e6f2f0;  /* Bleu très clair presque blanc */
+  --primary-dark: #70b3b8;   /* Bleu-vert plus foncé pour hover */
+  --secondary: #6ca0a9;      /* Bleu-gris pour accents */
+  --border: #c9d8d6;         /* Bordure douce bleu pâle */
+  --text: #2c3e50;           /* Bleu foncé pour texte */
+  --text-light: #669999;     /* Bleu clair pour texte secondaire */
+  --background: #f0f8f7;     /* Fond bleu très clair */
+  --radius: 12px;
+  --gap: 16px;
+  --section-gap: 20px;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
 
 /* Reset et style global */
 body {

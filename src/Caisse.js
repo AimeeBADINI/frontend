@@ -494,7 +494,7 @@ function Caisse() {
     return (
         <div className="pos-container">
             <header className="pos-header">
-                <h1><CakeIcon /> Pâtisserie Délices</h1>
+                <h1><CakeIcon /> LA MERIENDA</h1>
             </header>
             {isProcessing && (
                 <div className="loading-overlay">
