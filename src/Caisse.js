@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
@@ -11,6 +10,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import HistoryIcon from '@mui/icons-material/History';
 import CloseIcon from '@mui/icons-material/Close';
 import CakeIcon from '@mui/icons-material/Cake';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import './styles.css';
 
 function Caisse() {
@@ -329,54 +329,62 @@ function Caisse() {
     const generateInvoice = (saleId, cartItems) => {
         return new Promise((resolve, reject) => {
             try {
+                // Format de ticket compact (80mm de large, hauteur dynamique)
                 const doc = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
-                    format: [80, 150 + cartItems.length * 10]
+                    format: [80, 60 + cartItems.length * 8] // Hauteur ajustée selon le nombre d'articles
                 });
 
-                doc.setFont('Helvetica', 'normal');
-                doc.setFontSize(12);
-                doc.text('Pâtisserie Délices', 40, 10, { align: 'center' });
-                doc.setFontSize(8);
-                doc.text('123 Rue des Délices, Paris', 40, 15, { align: 'center' });
-                doc.text('Tél: +33 1 23 45 67 89', 40, 20, { align: 'center' });
+                // Police et taille pour une impression claire
+                doc.setFont('Courier', 'normal');
+                doc.setFontSize(10);
 
-                doc.setFontSize(9);
+                // En-tête du ticket
+                doc.text('LA MERIENDA', 40, 10, { align: 'center' });
+                doc.setFontSize(8);
+                doc.text('9, Rue Allal ben abdellab - NADOR', 40, 15, { align: 'center' });
+                doc.text('Tél: 06 11 50 31 03', 40, 20, { align: 'center' });
+
+                // Date et heure
                 doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 5, 30);
                 doc.text(`Heure: ${new Date().toLocaleTimeString('fr-FR')}`, 5, 35);
 
+                // Ligne de séparation
+                doc.setLineWidth(0.2);
+                doc.line(5, 40, 75, 40);
+
+                // En-tête du tableau des articles
                 doc.setFontSize(8);
                 let y = 45;
-                doc.setLineWidth(0.2);
-                doc.setDrawColor(200, 160, 140);
-                doc.line(5, y - 5, 75, y - 5);
-                doc.text('Produit', 5, y);
-                doc.text('Prix (DH)', 25, y);
-                doc.text('Qté', 45, y);
-                doc.text('Total (DH)', 60, y);
+                doc.text('Article', 5, y);
+                doc.text('Qté', 40, y);
+                doc.text('Prix', 55, y);
+                doc.text('Total', 65, y);
                 y += 5;
                 doc.line(5, y, 75, y);
                 y += 5;
 
+                // Liste des articles
                 cartItems.forEach(item => {
                     const totalItem = (item.prix_unitaire * item.quantite).toFixed(2);
                     const nom = item.nom.length > 20 ? item.nom.substring(0, 18) + '...' : item.nom;
-                    const categorie = item.categorie === 'pasteles' || item.categorie === 'gateaux' ? 'GÂTEAUX SOIRÉE' : item.categorie;
-                    doc.text(`${nom} (${categorie === 'GÂTEAUX SOIRÉE' ? item.unit : 'unité'})`, 5, y);
-                    doc.text(item.prix_unitaire.toFixed(2), 25, y);
-                    doc.text(`${item.quantite} ${categorie === 'GÂTEAUX SOIRÉE' ? item.unit : ''}`, 45, y);
-                    doc.text(totalItem, 60, y);
-                    y += 7;
+                    const unitDisplay = item.categorie === 'GÂTEAUX SOIRÉE' ? item.unit : '';
+                    doc.text(`${nom} ${unitDisplay}`, 5, y);
+                    doc.text(`${item.quantite}`, 40, y);
+                    doc.text(`${item.prix_unitaire.toFixed(2)}`, 55, y);
+                    doc.text(`${totalItem}`, 65, y);
+                    y += 8;
                 });
 
+                // Ligne de séparation et total
+                doc.line(5, y, 75, y);
                 y += 5;
-                doc.line(5, y - 5, 75, y - 5);
                 doc.setFontSize(9);
-                doc.text(`Total: ${calculerTotal(cartItems)} DH`, 50, y);
+                doc.text(`Total: ${calculerTotal(cartItems)} DH`, 55, y);
                 y += 5;
                 doc.setFontSize(8);
-                doc.text(`Mode de paiement: ${paymentMethod}`, 5, y);
+                doc.text(`Paiement: ${paymentMethod}`, 5, y);
                 y += 5;
                 doc.text('Merci de votre visite !', 40, y, { align: 'center' });
 
@@ -386,6 +394,33 @@ function Caisse() {
                 reject(err);
             }
         });
+    };
+
+    const downloadCurrentInvoice = async () => {
+        if (panier.length === 0) {
+            setErrorMessage('Le panier est vide. Ajoutez des articles pour télécharger un ticket.');
+            return;
+        }
+
+        try {
+            const updatedPanier = panier.map(item => ({
+                ...item,
+                categorie: item.categorie === 'pasteles' || item.categorie === 'gateaux' ? 'GÂTEAUX SOIRÉE' : item.categorie
+            }));
+            const pdfBlob = await generateInvoice('preview', updatedPanier);
+            const url = window.URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `ticket_preview.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            setErrorMessage('');
+        } catch (err) {
+            console.error('Erreur lors du téléchargement du ticket:', err);
+            setErrorMessage('Erreur lors du téléchargement du ticket.');
+        }
     };
 
     const downloadLastInvoice = async () => {
@@ -403,7 +438,7 @@ function Caisse() {
             const url = window.URL.createObjectURL(pdfBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `ticket.pdf`);
+            link.setAttribute('download', `ticket_${lastSaleId}.pdf`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -463,7 +498,7 @@ function Caisse() {
 
             const pdfBlob = await generateInvoice(saleId, itemsToPrint);
             const formData = new FormData();
-            formData.append('pdf', pdfBlob, `ticket.pdf`);
+            formData.append('pdf', pdfBlob, `ticket_${saleId}.pdf`);
             formData.append('saleId', saleId);
             formData.append('items', JSON.stringify(itemsToPrint));
             formData.append('total', calculerTotal(itemsToPrint));
@@ -494,7 +529,8 @@ function Caisse() {
     return (
         <div className="pos-container">
             <header className="pos-header">
-                <h1><CakeIcon /> LA MERIENDA</h1>
+                <img src='logo.png.svg' className="logo-img "/>
+                <h1> LA MERIENDA</h1>
             </header>
             {isProcessing && (
                 <div className="loading-overlay">
@@ -598,12 +634,28 @@ function Caisse() {
                             <button
                                 onClick={printLastInvoice}
                                 className="action-btn"
-                                aria-label="Imprimer le dernier ticket"
+                                aria-label="Imprimer le ticket"
                                 disabled={isProcessing}
                             >
                                 <PrintIcon /> Imprimer
                             </button>
                         </div>
+                        <button
+                            onClick={downloadCurrentInvoice}
+                            className="action-btn"
+                            aria-label="Télécharger le ticket actuel"
+                            disabled={isProcessing}
+                        >
+                            <GetAppIcon /> Télécharger
+                        </button>
+                        <button
+                            onClick={downloadLastInvoice}
+                            className="action-btn"
+                            aria-label="Télécharger le dernier ticket"
+                            disabled={isProcessing || !lastSaleId}
+                        >
+                            <GetAppIcon /> Dernier ticket
+                        </button>
                         <button
                             onClick={updateCategory}
                             className="action-btn"

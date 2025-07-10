@@ -14,6 +14,7 @@ function App() {
                 <Route path="/redirect" element={<Redirect />} />
                 <Route path="/add-product" element={<AddProduct />} />
                 <Route path="/edit-product/:id" element={<EditProduct />} /> {/* Route dynamique */}
+                
             </Routes>
         </Router>
     );
